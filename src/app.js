@@ -36,6 +36,18 @@ app.delete("/about", (req, res) => {
     res.send("delete data on about")
 })
 
+//query parameter
+app.get("/user", (req, res) => {
+    console.log(req.query)
+    res.send("USer Get Call")
+})
+
+//dyanaic route
+app.get("/user/:userId/:name/:password", (req, res) => {
+    console.log(req.params)
+    res.send({ firstName: "Rishi", lastName: "Belhekar" })
+})
+
 app.use("/", (req, res) => {
     res.send("Dashboard page")
 })

@@ -1,0 +1,20 @@
+{
+  "name": "devtinderbackend",
+  "version": "1.0.0",
+  "description": "dev tinder backend",
+  "keywords": [
+    "node",
+    "javascript"
+  ],
+  "license": "ISC",
+  "author": "rishi",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

@@ -7,16 +7,22 @@ const app = express()
 //create API for user
 app.post("/signup", async (req, res) => {
     const user = new User({
-        firstName: "Nitesh",
-        lastName: "Belhekar",
-        email: "nitesh@gmail.com",
+        firstName: "sachin",
+        lastName: "tendulkar",
+        email: "sachin@gmail.com",
         mobile: "9090909191",
         gender: "male",
-        age: "30"
+        age: "50"
     })
 
-    await user.save();
-    res.send("User Added Succesfully!!")
+    try {
+        await user.save();
+        res.send("User Added Succesfully!!")
+    }
+    catch (err) {
+        res.status(400).send("error saving the user", + err.message)
+    }
+
 })
 
 connectDB().then(() => {

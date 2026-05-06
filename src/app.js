@@ -23,12 +23,13 @@ app.listen(3000, () => {
 app.use("/check", (req, res) => {
     res.send("check page view")
 })
-
-app.get("/about", (req, res) => {
+const { userAuth } = require("./middlewares/userAuth.js")
+app.get("/about", userAuth, (req, res) => {
     res.send("get data from about")
 })
 
-app.post("/about", (req, res) => {
+
+app.post("/about", userAuth, (req, res) => {
     res.send("Post data on about")
 })
 
@@ -48,7 +49,46 @@ app.get("/user/:userId/:name/:password", (req, res) => {
     res.send({ firstName: "Rishi", lastName: "Belhekar" })
 })
 
-app.use("/", (req, res) => {
-    res.send("Dashboard page")
+app.use("/contact", (req, res, next) => {
+    console.log("First call")
+    next()
+},
+    (req, res, next) => {
+        console.log("Handle second Respnse")
+        res.send("Second Response")
+        next()
+    },
+    (req, res, next) => {
+        console.log("handle third Response")
+        //res.send("third Resonse")
+        next()
+    },
+    (req, res, next) => {
+        console.log("3 Handle")
+        //.send("3 Handle")
+        next()
+    },
+    (req, res, next) => {
+        console.log("4th handle")
+        //res.send("4th Handle")
+        next()
+    }
+)
+
+const { adminAuth } = require("../middleware/auth.js")
+
+app.use("/admin", adminAuth)
+
+app.get("/admin/getalldata", (req, res) => {
+    res.send("Admin Get all data")
+    //res.status(401).send("Unautorized")
 })
+
+app.get("/admin/deleteuser", (req, res) => {
+    res.send("Admin Delete all data")
+})
+
+// app.use("/", (req, res) => {
+//     res.send("Dashboard page")
+// })
 

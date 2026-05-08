@@ -4,16 +4,24 @@ const connectDB = require("./config/database.js")
 const User = require("./models/user.js")
 const app = express()
 
+//express json to make api data read when sending from api body
+app.use(express.json())
+
+
 //create API for user
 app.post("/signup", async (req, res) => {
-    const user = new User({
-        firstName: "sachin",
-        lastName: "tendulkar",
-        email: "sachin@gmail.com",
-        mobile: "9090909191",
-        gender: "male",
-        age: "50"
-    })
+
+    //dynamic user data from API
+    const user = new User(req.body)
+    //create new instance
+    // const user = new User({
+    //     firstName: "sachin",
+    //     lastName: "tendulkar",
+    //     email: "sachin@gmail.com",
+    //     mobile: "9090909191",
+    //     gender: "male",
+    //     age: "50"
+    // })
 
     try {
         await user.save();

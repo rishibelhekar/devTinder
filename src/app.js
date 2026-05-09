@@ -33,6 +33,36 @@ app.post("/signup", async (req, res) => {
 
 })
 
+//find user by email Id:
+app.get("/user", async (req, res) => {
+    const userEmail = req.body.email;
+    try {
+        const user = await User.find({ email: userEmail })
+
+        // if no datafound
+        if (user.length === 0) {
+            res.status(400).send("No data found")
+        } else {
+            res.send(user)
+        }
+
+    } catch (err) {
+        res.status(400).send("something went wrong")
+    }
+
+})
+
+//create API for get all feed/user
+app.get("/feed", async (req, res) => {
+    try {
+        const feed = await User.find({})
+        res.send(feed)
+
+    } catch (err) {
+        res.status(401).send("something went wrong")
+    }
+})
+
 connectDB().then(() => {
     console.log("Database Connection Created with mongo");
     // Start server 

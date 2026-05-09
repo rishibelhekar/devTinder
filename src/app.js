@@ -63,6 +63,25 @@ app.get("/feed", async (req, res) => {
     }
 })
 
+//create API findOne record
+app.get("/findone", async (req, res) => {
+    const userEmail = req.body.email;
+    console.log(userEmail)
+    try {
+        const findone = await User.findOne({ email: userEmail })
+        if (!findone) {
+            res.status(400).send("no Record")
+        } else {
+            res.send(findone)
+        }
+
+    }
+    catch (err) {
+        res.status(400).send("something went wrong")
+    }
+
+})
+
 connectDB().then(() => {
     console.log("Database Connection Created with mongo");
     // Start server 

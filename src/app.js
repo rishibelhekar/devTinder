@@ -82,6 +82,19 @@ app.get("/findone", async (req, res) => {
 
 })
 
+//delete by user id => Delete API delete user by ID
+app.delete("/user", async (req, res) => {
+    const userId = req.body.userId
+
+    try {
+        const deleteUser = User.findByIdAndDelete(userId)
+        res.send("User Deleted Succesfullly")
+
+    } catch (err) {
+        res.status(400).send("something went wrong")
+    }
+})
+
 connectDB().then(() => {
     console.log("Database Connection Created with mongo");
     // Start server 

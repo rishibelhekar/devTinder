@@ -95,6 +95,21 @@ app.delete("/user", async (req, res) => {
     }
 })
 
+//update API by PATCH => update user
+
+app.patch("/user", async (req, res) => {
+    const userId = req.body.userId;
+    const data = req.body;
+
+    try {
+        const updateUser = await User.findByIdAndUpdate({ _id: userId }, data, { returnDocument: "after" })
+        console.log(updateUser)
+        res.send("User updated Successfully")
+    } catch (err) {
+        res.status(400).send("something went wrong")
+    }
+})
+
 connectDB().then(() => {
     console.log("Database Connection Created with mongo");
     // Start server 

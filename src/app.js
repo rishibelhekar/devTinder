@@ -63,7 +63,7 @@ app.get("/feed", async (req, res) => {
     }
 })
 
-//create API findOne record
+//create API findOne record => findone return null if no record
 app.get("/findone", async (req, res) => {
     const userEmail = req.body.email;
     console.log(userEmail)

@@ -1,8 +1,14 @@
 const mongoose = require("mongoose")
+const validator = require("validator")
 
 const userSchema = new mongoose.Schema({
     firstName: {
-        type: String
+        type: String,
+        validate(value) {
+            if (validator.isEmpty(value)) {
+                throw new Error("Add firstname")
+            }
+        }
     },
     lastName: {
         type: String
@@ -12,10 +18,21 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
+        required: true,
         unique: true,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error("Invalid Email address: " + value)
+            }
+        }
     },
     mobile: {
-        type: Number
+        type: String,
+        validate(value) {
+            if (!validator.isMobilePhone(value, 'en-IN')) {
+                throw new Error("Mobile number is not valid :" + value)
+            }
+        }
     },
     gender: {
         type: String,
@@ -27,6 +44,14 @@ const userSchema = new mongoose.Schema({
     },
     age: {
         type: Number
+    },
+    photoURL: {
+        type: String,
+        validate(value) {
+            if (!validator.isURL(value)) {
+                throw new Error("URL is not valid: " + value)
+            }
+        }
     }
 }, { timestamps: true })
 

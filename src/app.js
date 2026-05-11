@@ -13,22 +13,13 @@ app.post("/signup", async (req, res) => {
 
     //dynamic user data from API
     const user = new User(req.body)
-    //create new instance
-    // const user = new User({
-    //     firstName: "sachin",
-    //     lastName: "tendulkar",
-    //     email: "sachin@gmail.com",
-    //     mobile: "9090909191",
-    //     gender: "male",
-    //     age: "50"
-    // })
 
     try {
         await user.save();
         res.send("User Added Succesfully!!")
     }
     catch (err) {
-        res.status(400).send("error saving the user", + err.message)
+        res.status(400).send("error saving the user: " + err.message)
     }
 
 })

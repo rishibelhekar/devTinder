@@ -2,6 +2,8 @@ const express = require("express")
 //database rquire dabase file to import as require 
 const connectDB = require("./config/database.js")
 const User = require("./models/user.js")
+const { validateSignUpdate } = require("./utils/validation.js")
+const bcrypt = require("bcrypt")
 const app = express()
 
 //express json to make api data read when sending from api body
@@ -10,18 +12,88 @@ app.use(express.json())
 
 //create API for user
 app.post("/signup", async (req, res) => {
-
-    //dynamic user data from API
-    const user = new User(req.body)
-
     try {
+        //validation of data => using helper function added in utils
+        validateSignUpdate(req)
+
+        //object destructring for fields
+        const { firstName, lastName, email, password } = req.body
+        //encrypt password
+        const passwordHash = await bcrypt.hash(password, 10);
+        console.log(passwordHash)
+
+        //to uppercase
+        const firstNameHash = firstName.toUpperCase()
+        console.log(firstNameHash)
+
+        //dynamic user data from API
+        //const user = new User(req.body)
+        //at start we are passing data like above but good way is below
+        const user = new User({
+            firstName: firstNameHash, lastName, email, password: passwordHash
+        })
+
         await user.save();
         res.send("User Added Succesfully!!")
     }
     catch (err) {
-        res.status(400).send("error saving the user: " + err.message)
+        res.status(400).send("ERROR: " + err.message)
     }
 
+})
+
+//create login API => email and password
+app.post("/login", async (req, res) => {
+    try {
+
+        const { email, password } = req.body
+        //check email avaialble and correct
+        const user = await User.findOne({ email: email })
+        console.log(user)
+        if (!user) {
+            throw new Error("Invaild Email Id")
+        }
+
+        //check password decrypt and check => in compare fn 2 parameter (user password, db password)
+        const isValidPassword = await bcrypt.compare(password, user.password)
+        console.log(isValidPassword)
+        if (isValidPassword) {
+            res.send("Login Successfull")
+        } else {
+            throw new Error("Invaild Password")
+        }
+
+    } catch (err) {
+        res.status(400).send("EROOR: " + err.message)
+    }
+})
+
+//same login api just to checck from my end
+app.post("/logincheck", async (req, res) => {
+    try {
+        const { email, password } = req.body
+        //check email id
+        const isEmailValid = await User.findOne({ email: email })
+        console.log(isEmailValid)
+        if (!isEmailValid) {
+            throw new Error("Invaid Email")
+            console.log("Invalid Email")
+        } else {
+            console.log("valid Email")
+        }
+        const passwordValid = await bcrypt.compare(password, isEmailValid.password)
+        //check password
+        if (passwordValid) {
+            res.send("login Successful")
+        } else {
+            throw new Error("Invalid Password")
+        }
+
+
+    }
+    catch (err) {
+        res.status(400).send("Error :" + err.message)
+    }
 })
 
 //find user by email Id:

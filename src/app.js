@@ -89,9 +89,34 @@ app.post("/logincheck", async (req, res) => {
             throw new Error("Invalid Password")
         }
 
-
     }
     catch (err) {
+        res.status(400).send("Error :" + err.message)
+    }
+})
+
+//new try for login API check email and passwd
+app.post("/loginby", async (req, res) => {
+    try {
+        const { email, password } = req.body
+        //check email id is avaiable => find email
+        const user = await User.findOne({ email: email })
+        console.log(user)
+        if (!user) {
+            throw new Error("Email id not correct")
+        }
+        const passwordMatch = await bcrypt.compare(password, user.password)
+        console.log("passwordMatch")
+        //check password is matched
+        if (passwordMatch) {
+            res.send("Login correct")
+        } else {
+            throw new Error("incorrect password")
+        }
+
+
+
+    } catch (err) {
         res.status(400).send("Error :" + err.message)
     }
 })

@@ -4,10 +4,18 @@ const connectDB = require("./config/database.js")
 const User = require("./models/user.js")
 const { validateSignUpdate } = require("./utils/validation.js")
 const bcrypt = require("bcrypt")
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
+//import middleware
+const { apiAuth } = require("./middlewares/apiAuth.js")
 const app = express()
+
+
 
 //express json to make api data read when sending from api body
 app.use(express.json())
+//cookie parser middleware
+app.use(cookieParser())
 
 
 //create API for user
@@ -42,6 +50,44 @@ app.post("/signup", async (req, res) => {
 
 })
 
+//get profile call => as we create cookie server will send token in cookie when get profile call
+app.get("/profile", async (req, res) => {
+    try {
+        const cookies = req.cookies
+        const { token } = cookies
+        if (!token) {
+            throw new Error("Invalid token")
+        }
+        // jwt verify taken 2 parameter 1. token 2. sign (which we have added in post login api = > jwt sign)
+        const verifyToken = await jwt.verify(token, "rishitoken")
+        console.log(verifyToken)
+        const user = await User.findById(verifyToken._id);
+        const profile = user
+        console.log(user.email)
+        //console.log(user)
+        if (!user) {
+            throw new Error("User does not exists")
+        } else {
+            res.send(`"Profile or login user is: ", ${user.email}`)
+        }
+        //console.log(cookies)
+        //res.send("Get Profile data", user)
+    } catch (err) {
+        res.status(400).send("Error :" + err.message)
+    }
+
+})
+
+app.get("/profileBy", apiAuth, async (req, res) => {
+    try {
+        const user = req.user
+        res.send(user)
+
+    } catch (err) {
+        res.status(400).send("Error:" + err.message)
+    }
+})
+
 //create login API => email and password
 app.post("/login", async (req, res) => {
     try {
@@ -56,8 +102,12 @@ app.post("/login", async (req, res) => {
 
         //check password decrypt and check => in compare fn 2 parameter (user password, db password)
         const isValidPassword = await bcrypt.compare(password, user.password)
-        console.log(isValidPassword)
+        // console.log(isValidPassword)
         if (isValidPassword) {
+            //create JWT token
+            const jwttoken = await jwt.sign({ _id: user._id }, "rishitoken")
+            //add token to cookie and send res back to user
+            res.cookie("token", jwttoken)
             res.send("Login Successfull")
         } else {
             throw new Error("Invaild Password")
@@ -106,7 +156,7 @@ app.post("/loginby", async (req, res) => {
             throw new Error("Email id not correct")
         }
         const passwordMatch = await bcrypt.compare(password, user.password)
-        console.log("passwordMatch")
+        // console.log("passwordMatch")
         //check password is matched
         if (passwordMatch) {
             res.send("Login correct")

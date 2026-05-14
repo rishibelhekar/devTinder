@@ -78,6 +78,7 @@ app.get("/profile", async (req, res) => {
 
 })
 
+//same like profile API but middle ware added for same => apiAuth is middleware
 app.get("/profileBy", apiAuth, async (req, res) => {
     try {
         const user = req.user

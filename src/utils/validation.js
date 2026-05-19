@@ -14,6 +14,14 @@ const validateSignUpdate = (req) => {
     }
 }
 
+const checkEditData = (req) => {
+    const allowedEditFileds = ["firstName", "lastName", "email", "mobile", "gender", "age", "photURL"]
+    const isEditAllow = Object.keys(req.body).every(field => allowedEditFileds.includes(field))
+    console.log(isEditAllow)
+    return isEditAllow;
+}
+
+
 module.exports = {
-    validateSignUpdate
+    validateSignUpdate, checkEditData
 }

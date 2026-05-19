@@ -22,7 +22,6 @@ const apiAuth = async (req, res, next) => {
     } catch (err) {
         res.status(400).send("Error: " + err.message)
     }
-    next()
 }
 
 module.exports = {

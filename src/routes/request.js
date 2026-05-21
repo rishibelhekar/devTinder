@@ -101,10 +101,10 @@ requestRouter.post("/request/send/:status/:toUserId", apiAuth, async (req, res) 
         }
 
         //check if toUser is available in db or Not
-        const toUserCheck = await User.findOne({ toUserId })
+        const toUserCheck = await User.findOne({ _id: toUserId })
 
         if (!toUserCheck) {
-            return res.status(400).json({ message: "User does not Exists!" })
+            return res.status(404).json({ message: "User does not Exists!" })
         }
 
         //existing request validation => below code check req from user and again if aonther user is already send request

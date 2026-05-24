@@ -27,5 +27,25 @@ userRouter.get("/user/request/received", apiAuth, async (req, res) => {
     }
 })
 
+//get all connection received as well as send from user
+userRouter.get("/user/connections", apiAuth, async (req, res) => {
+    try {
+        const loginUser = req.user
+
+        const connectionrequest = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: loginUser._id, status: "accepted" },
+                { toUserId: loginUser._id, status: "accepted" }
+            ]
+        }).populate("fromUserId", "firstName lastName")
+
+        res.json({ messaage: "All Coonection fetch", connectionrequest })
+
+    } catch (err) {
+        res.status(400).send("Error ", + err.message)
+    }
+})
+
+
 //export router
 module.exports = userRouter;

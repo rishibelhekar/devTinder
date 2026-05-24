@@ -4,7 +4,8 @@ const connectionRequestSchema = new mongoose.Schema(
     {
         fromUserId: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true
+            required: true,
+            ref: "User",
         },
         toUserId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -27,15 +28,24 @@ const connectionRequestSchema = new mongoose.Schema(
 
 //below fun is like middleware it will call vevery time before connection resquest is save
 // we are calling  connectionRequest.save(); in Request API so befoe that below pre save will call
-connectionRequestSchema.pre("save", function (next) {
-    const connectionRequest = this
-    //check if fromUserID is same as touserID
-    //below we can add in API as well to check validation self but we can add in pre a standard way of code
-    if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
-        throw new Error("You cant send request to your self")
+// connectionRequestSchema.pre("save", function (next) {
+//     const connectionRequest = this
+
+//     if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
+//         throw new Error("You cant send request to your self")
+//     }
+//     next()
+// })
+
+//check if fromUserID is same as touserID
+//below we can add in API as well to check validation self but we can add in pre a standard way of code
+connectionRequestSchema.pre("save", async function () {
+
+    if (this.fromUserId.equals(this.toUserId)) {
+        throw new Error("You cant send request to yourself");
     }
-    next()
-})
+
+});
 
 const ConnectionRequestModel = new mongoose.model("connectionRequest", connectionRequestSchema)
 

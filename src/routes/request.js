@@ -136,5 +136,41 @@ requestRouter.post("/request/send/:status/:toUserId", apiAuth, async (req, res) 
     }
 })
 
+//Accept or reject Connection Request
+
+requestRouter.post("/request/review/:status/:requestId", apiAuth, async (req, res) => {
+    try {
+        const loginUser = req.user
+        //reqid and status from url params => destructure
+        const { status, requestId } = req.params
+        //status allowed validation
+        const allowedStatus = ["accepted", "rejected"]
+        if (!allowedStatus.includes(status)) {
+            return res.status(400).json({ message: "Status Not Allowed" })
+        }
+
+        //check conn req is valid and user is login all case match
+        //here we check touserdId  is login user id means to whom we send req he only can accpet
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestId,
+            toUserId: loginUser._id,
+            status: "interested"
+        })
+        console.log(connectionRequest)
+
+        if (!connectionRequest) {
+            return res.status(400).json({ message: "Connection request Not Found" })
+        }
+
+        connectionRequest.status = status
+        const data = await connectionRequest.save()
+
+        res.json({ message: "Connection Request " + status, data })
+
+    } catch (err) {
+        res.status(400).send("Error :" + err.message)
+    }
+})
+
 
 module.exports = requestRouter;

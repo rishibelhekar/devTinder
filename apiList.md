@@ -17,6 +17,6 @@ Post /request/review/accepted:userId
 Post /request/review/rejected:userId
 
 # userRoute
+GET /user/request/received
 GET /user/connections
 GET /user/feed
-GET /user/request

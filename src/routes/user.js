@@ -61,6 +61,12 @@ userRouter.get("/user/connections", apiAuth, async (req, res) => {
 userRouter.get("/user/feed", apiAuth, async (req, res) => {
     try {
         const loginUser = req.user
+
+        //pagination code => skip().limit() added in user data
+        const page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+        limit = limit > 50 ? 50 : limit;
+        const skip = (page - 1) * limit;
         //check req send and rcv for login user
         const connectionRequest = await ConnectionRequest.find({
             $or: [
@@ -85,7 +91,7 @@ userRouter.get("/user/feed", apiAuth, async (req, res) => {
                 { _id: { $ne: loginUser._id } }
             ]
 
-        }).select("firstName lastName")
+        }).select("firstName lastName").skip(skip).limit(limit)
 
         //return user
         res.send(users)

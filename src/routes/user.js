@@ -5,6 +5,7 @@ const express = require("express")
 const { apiAuth } = require("../middlewares/apiAuth")
 //import connectionrequest
 const ConnectionRequest = require("../models/connectionRequest")
+const User = require("../models/user")
 const userRouter = express.Router()
 
 //get all user request
@@ -18,7 +19,7 @@ userRouter.get("/user/request/received", apiAuth, async (req, res) => {
         }).populate("fromUserId", "firstName lastName")
 
         res.json({
-            message: "Date fecth Successfully",
+            message: "Date Fetch Successfully",
             data: connectionRequest,
         })
 
@@ -37,12 +38,60 @@ userRouter.get("/user/connections", apiAuth, async (req, res) => {
                 { fromUserId: loginUser._id, status: "accepted" },
                 { toUserId: loginUser._id, status: "accepted" }
             ]
-        }).populate("fromUserId", "firstName lastName")
+        }).populate("fromUserId", "firstName lastName").populate("toUserId", "firstName lastName")
 
-        res.json({ messaage: "All Coonection fetch", connectionrequest })
+        const data = connectionrequest.map((row) => {
+            if (row.fromUserId._id.toString() === loginUser._id.toString()) {
+                return row.toUserId;
+            }
+            return row.fromUserId
+        })
+
+        res.json({ messaage: "All Coonection fetch", data })
 
     } catch (err) {
         res.status(400).send("Error ", + err.message)
+    }
+})
+
+//feed API => all user
+//Feed API Login >
+//User can see call feed card expect bellow
+//1.he cant see his own card 2.his connection 3. who ignored him 4.allready sent req
+userRouter.get("/user/feed", apiAuth, async (req, res) => {
+    try {
+        const loginUser = req.user
+        //check req send and rcv for login user
+        const connectionRequest = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: loginUser._id },
+                { toUserId: loginUser._id }
+            ]
+        }).select("fromUserId toUserId")
+        console.log(connectionRequest)
+
+        //user who need to hide 
+        const hideUserFromFeed = new Set();
+        connectionRequest.forEach((req) => {
+            hideUserFromFeed.add(req.fromUserId.toString());
+            hideUserFromFeed.add(req.toUserId.toString())
+        })
+        console.log(hideUserFromFeed)
+
+        //find user feed for login user as per checks
+        const users = await User.find({
+            $and: [
+                { _id: { $nin: Array.from(hideUserFromFeed) } },
+                { _id: { $ne: loginUser._id } }
+            ]
+
+        }).select("firstName lastName")
+
+        //return user
+        res.send(users)
+
+    } catch (err) {
+        res.status(400).send("Error " + err.message)
     }
 })
 

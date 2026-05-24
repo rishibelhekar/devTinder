@@ -7,13 +7,14 @@ const { apiAuth } = require("../middlewares/apiAuth")
 const ConnectionRequest = require("../models/connectionRequest")
 const userRouter = express.Router()
 
+//get all user request
 userRouter.get("/user/request/received", apiAuth, async (req, res) => {
     try {
         const loginUser = req.user
 
         const connectionRequest = await ConnectionRequest.find({
             fromUserId: loginUser._id,
-            status: "interested"
+            status: "interested" // will fecth only request which status is interesetd
         }).populate("fromUserId", "firstName lastName")
 
         res.json({
